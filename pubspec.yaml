@@ -1,0 +1,13 @@
+name: wasanbon_converter
+version: 0.0.1
+description: OpenRTM-aist DataPort converter
+dependencies:
+  http: any
+  browser: any
+  yaml: any
+  logging: any
+dev_dependencies:
+  unittest: any
+transformers:
+- $dart2js:
+    $include: '**/*.bootstrap.initialize.dart'
