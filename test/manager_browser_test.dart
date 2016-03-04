@@ -1,12 +1,12 @@
-library wasanbon_converter.manager_test;
+library wasanbon_converter.manager_browser_test;
 
 import 'dart:core';
-//import 'dart:js';
-import 'dart:io' as io;
-import 'dart:async';
 import 'package:logging/logging.dart';
+import 'dart:html' as html;
+import 'dart:async';
 
 import 'package:wasanbon_converter/wasanbon_converter.dart';
+
 
 class Time {
   static const String typeCode = "RTC.Time";
@@ -96,19 +96,21 @@ class TimedLong {
 }
 
 
-
-
 main() {
   Logger.root.level = Level.ALL;
-  Manager m = new Manager();// = new Converter(test: true);
+
+  Manager m = new Manager();
 
   m.onRecordListen((LogRecord rec) {
     print('${rec.level.name}: ${rec.time}: ${rec.message}');
   });
 
-  io.WebSocket.connect('ws://127.0.0.1:8080/ws').then((io.WebSocket s) {
-    m.connectIO(s);
 
+  m.connectHtml(new html.WebSocket('ws://127.0.0.1:8080/ws')).then((_) {
+    var c = html.querySelector("#connected_box");
+    c.style.display = 'inline';
+    var e = html.querySelector("#error_box");
+    e.style.display = 'none';
 
     /// ポートの追加
     //m.addInPort('in', new TimedLong.zeros()).then((bool flag) {
@@ -116,8 +118,9 @@ main() {
     m.addInPort(inIn).then((bool flag) {
       inIn.on.listen((var data) {
         print('InPort received $data');
+        var v = html.querySelector('#value_box');
+        v.innerHtml = data.toString();
       });
-
     });
 
     var out = new TimedLong.zeros();
@@ -135,7 +138,7 @@ main() {
 
 
     new Future.delayed(new Duration(seconds:300)).then((_) {
-      m.disconnect();
+      c.disconnect();
     });
 
   });
